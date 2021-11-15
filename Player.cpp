@@ -1,62 +1,97 @@
 #include "Player.h"
-#include <SFML/Graphics.hpp>
-#include <iostream>
-using namespace sf;
 Player::Player()
 {
-    // Вписываем в переменную скорость 
-    m_Speed = 100;
-    CurrentFrame = 0;
 
     PlayerImage.loadFromFile("texturePac.png");
     PlayerImage.createMaskFromColor(Color(255, 0, 255));
 
-    PlayerTexture.loadFromImage(PlayerImage);//передаем в него объект Image (изображения)
+    PlayerTexture.loadFromImage(PlayerImage);
 
-    PlayerSprite.setTexture(PlayerTexture);//передаём в него объект Texture (текстуры)
+    PlayerSprite.setTexture(PlayerTexture);
     PlayerSprite.setTextureRect(IntRect(4, 72, 51, 51));
-    PlayerSprite.setPosition(50, 25);//задаем начальные координаты появления спрайта
 
-    int vec_null[2] = { 0,0 };
-    memcpy(&vector, &vec_null, sizeof(vec_null));
+    vectorMove.x = 0;
+    vectorMove.y = 0;
     // Устанавливаем начальную позицию Боба в пикселях
-    m_Position.x = 100;
-    m_Position.y = 100;
+    m_Position.x = 400;
+    m_Position.y = 400;
+}
 
-} 
-
-// Делаем приватный спрайт доступным для функции draw()
-Sprite Player::getSprite()
+vector<Bullet> Player::getBullets()
 {
-    return PlayerSprite;
+    return Bullets;
 }
 
 void Player::moveLeft()
 {
-    int vec_null[2] = { -1,0};
-    memcpy(&vector, &vec_null, sizeof(vec_null));
+    vectorMove.x = -1;
+    vectorMove.y = 0;
+    orientation = "Left";
     PlayerSprite.setTextureRect(IntRect(392 + 64 * (int(CurrentFrame) / 1), 72, 52, 52));
 }
 
 void Player::moveRight()
 {
-    int vec_null[2] = { 1,0};
-    memcpy(&vector, &vec_null, sizeof(vec_null));
+    vectorMove.x = 1;
+    vectorMove.y = 0;
+    orientation = "Right";
     PlayerSprite.setTextureRect(IntRect(132 + 64 * (int(CurrentFrame) / 1), 72, 52, 52));
 }
 
 void Player::moveUp()
 {
-    int vec_null[2] = { 0,-1 };
-    memcpy(&vector, &vec_null, sizeof(vec_null));
+    vectorMove.x = 0;
+    vectorMove.y = -1;
+    orientation = "Up";
     PlayerSprite.setTextureRect(IntRect(4+64*(int(CurrentFrame)/1), 72, 52, 52));
 }
 
 void Player::moveDown()
 {
-    int vec_null[2] = { 0,1 };
-    memcpy(&vector, &vec_null, sizeof(vec_null));
+    vectorMove.x = 0;
+    vectorMove.y = 1;
+    orientation = "Down";
     PlayerSprite.setTextureRect(IntRect(260 + 64 * (int(CurrentFrame) / 1), 72, 52, 52));
+}
+
+void Player::Fire()
+{
+    Vector2f b_Position;
+    if (cooldown_timer >= cooldown)
+    {
+        if (orientation == "Up")
+        {
+            b_Position.x = m_Position.x + 20;
+            b_Position.y = m_Position.y;
+        }
+        else if (orientation == "Down")
+        {
+            b_Position.x = m_Position.x + 20;
+            b_Position.y = m_Position.y + 52;
+        }
+        else if (orientation == "Left")
+        {
+            b_Position.x = m_Position.x - 16;
+            b_Position.y = m_Position.y + 20;
+        }
+        else if (orientation == "Right")
+        {
+            b_Position.x = m_Position.x + 52;
+            b_Position.y = m_Position.y + 20;
+        }
+        Bullet bullet(orientation, b_Position);
+        Bullets.push_back(bullet);
+        cooldown_timer = 0;
+    }
+
+}
+
+void Player::draw(RenderWindow* win)
+{
+    PlayerSprite.setTexture(PlayerTexture);
+    (*win).draw(PlayerSprite);
+    for (int i = 0; i < Bullets.size(); i++)
+         Bullets[i].draw(win);
 }
 
 
@@ -64,15 +99,21 @@ void Player::moveDown()
 // прошедшего времени и скорости
 void Player::update(float elapsedTime)
 {
-    if (vector[0] != 0)
-        m_Position.x += m_Speed * vector[0] * elapsedTime;
-    else
-        m_Position.y += m_Speed * vector[1] * elapsedTime;
-    int vec_null[2] = { 0,0 };
-    memcpy(&vector, &vec_null, sizeof(vec_null));
-    if (CurrentFrame > 2) CurrentFrame -= 2;
-    CurrentFrame += elapsedTime* animSpeed;
-    // Теперь сдвигаем спрайт на новую позицию
+    m_Position.x += m_Speed * vectorMove.x * elapsedTime;
+    m_Position.y += m_Speed * vectorMove.y * elapsedTime;
+
+    vectorMove.x = 0;
+    vectorMove.y = 0;
+
+    for (int i = 0; i < Bullets.size(); i++)
+        Bullets[i].update(elapsedTime);
+
+
+    CurrentFrame += elapsedTime * animSpeed;
+    if (CurrentFrame > 2) CurrentFrame = 0;
+
+    if (cooldown_timer < cooldown) cooldown_timer += elapsedTime;
+
     PlayerSprite.setPosition(m_Position);
 
 }

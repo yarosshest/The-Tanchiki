@@ -9,15 +9,18 @@ private:
 
     RenderWindow m_Window;
 
-    // Объявляем спрайт и текстуру для фона
-    Sprite m_BackgroundSprite;
-    Texture m_BackgroundTexture;
+    Sprite MainSprite;
+    Texture MainTexture;
 
-public:
-    // Конструктор движка
+    Image MainImage;
+
     Player m_Player;
+
     void input();
     void update(float dtAsSeconds);
-    Engine();
+    void draw();
 
+public:
+    Engine();
+    void start();
 };
