@@ -9,7 +9,8 @@ void Bullet::update(float elapsedTime)
     BulletSprite.setPosition(Position);
 }
 
-Bullet::Bullet(string orientation , Vector2f getPosition)
+
+Bullet::Bullet(string orientation , Vector2f getPosition, int getId)
 {
     BulletImage.loadFromFile("texturePac.png");
     BulletImage.createMaskFromColor(Color(255, 0, 255));
@@ -24,27 +25,35 @@ Bullet::Bullet(string orientation , Vector2f getPosition)
         BulletSprite.setTextureRect(IntRect(192, 0, 12, 16));
         vector.x = 0;
         vector.y = -1;
+        size.x = 12;
+        size.y = 16;
     }
     else if (orientation == "Down")
     {
         BulletSprite.setTextureRect(IntRect(192, 32, 12, 16));
         vector.x = 0;
         vector.y = 1;
+        size.x = 12;
+        size.y = 16;
     }
     else if (orientation == "Left")
     {
         BulletSprite.setTextureRect(IntRect(224, 0, 16, 12));
         vector.x = -1;
         vector.y = 0;
+        size.x = 16;
+        size.y = 12;
     }
     else if (orientation == "Right")
     {
         BulletSprite.setTextureRect(IntRect(224, 32, 16, 12));
         vector.x = 1;
         vector.y = 0;
+        size.x = 16;
+        size.y = 12;
     }
 
-
+    id = getId;
     BulletSprite.setPosition(Position);
 }
 

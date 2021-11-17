@@ -7,9 +7,8 @@ class Bullet
 {
 
 private:
-
-	Vector2f Position;
 	Vector2f vector;
+
 
 	Image BulletImage;
 	Texture BulletTexture;
@@ -19,7 +18,10 @@ private:
 	int damage = 1;
 
 public:
-	Bullet(string orientation, Vector2f getPosition);
+	Vector2f Position;
+	Vector2f size;
+	int id;
+	Bullet(string orientation, Vector2f getPosition, int getId);
 	void update(float elapsedTime);
 	void draw(RenderWindow* win);
 };

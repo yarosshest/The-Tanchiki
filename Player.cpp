@@ -1,7 +1,6 @@
 #include "Player.h"
 Player::Player()
 {
-
     PlayerImage.loadFromFile("texturePac.png");
     PlayerImage.createMaskFromColor(Color(255, 0, 255));
 
@@ -10,17 +9,16 @@ Player::Player()
     PlayerSprite.setTexture(PlayerTexture);
     PlayerSprite.setTextureRect(IntRect(4, 72, 51, 51));
 
+    size.x = 51;
+    size.y = 51;
+
     vectorMove.x = 0;
     vectorMove.y = 0;
-    // Устанавливаем начальную позицию Боба в пикселях
+
     m_Position.x = 400;
     m_Position.y = 400;
 }
 
-vector<Bullet> Player::getBullets()
-{
-    return Bullets;
-}
 
 void Player::moveLeft()
 {
@@ -79,7 +77,10 @@ void Player::Fire()
             b_Position.x = m_Position.x + 52;
             b_Position.y = m_Position.y + 20;
         }
-        Bullet bullet(orientation, b_Position);
+
+
+        Bullet bullet(orientation, b_Position, bulletCount);
+        bulletCount++;
         Bullets.push_back(bullet);
         cooldown_timer = 0;
     }

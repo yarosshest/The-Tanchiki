@@ -12,16 +12,15 @@ class Player
 private:
 
     // Позиция Player
-    Vector2f m_Position;
     Vector2f vectorMove;
     string orientation;
-
-    vector<Bullet> Bullets;
 
     // Объявляем объект Sprite
     Image PlayerImage;
     Texture PlayerTexture;
     Sprite PlayerSprite;
+
+    int bulletCount = 0;
 
     float CurrentFrame = 0;
     int XP = 1;
@@ -32,10 +31,12 @@ private:
 
     // Открытые методы
 public:
+    Vector2f m_Position;
+    Vector2f size;
+    vector<Bullet> Bullets;
+
     // Настраиваем Player в конструкторе
     Player();
-
-    vector<Bullet>getBullets();
 
     void moveLeft();
 
