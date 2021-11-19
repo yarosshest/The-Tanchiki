@@ -1,6 +1,7 @@
 #pragma once
 #include "vector"
 #include "Bullet.h"
+#include <math.h>
 #include <SFML/Graphics.hpp>
 using namespace sf;
 using namespace std;
@@ -19,9 +20,9 @@ private:
 
     float CurrentFrame = 0;
     int XP = 1;
-    float Speed = 100;
-    float animSpeed = 50;
-    float cooldown = 0.5;
+    float Speed = 20;
+    float animSpeed = 10;
+    float cooldown = 2;
     float cooldown_timer = cooldown;
 public:
     Vector2f Position;
@@ -34,6 +35,12 @@ public:
 
     void draw(RenderWindow* win);
 
-    void update(float elapsedTime);
+    void Move();
+
+    void turn(Vector2f posP, Vector2f sizeP);
+
+    void update(float elapsedTime, Vector2f posP, Vector2f sizeP);
+
+    void Fire(Vector2f posP, Vector2f sizeP);
 };
 

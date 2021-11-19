@@ -14,13 +14,14 @@ private:
 	Texture BulletTexture;
 	Sprite BulletSprite;
 
-	int speed = 200;
-	int damage = 1;
+	int speed = 120;
 
 public:
+
 	Vector2f Position;
 	Vector2f size;
 	int id;
+	int damage = 1;
 	Bullet(string orientation, Vector2f getPosition, int getId);
 	void update(float elapsedTime);
 	void draw(RenderWindow* win);

@@ -23,7 +23,6 @@ private:
     int bulletCount = 0;
 
     float CurrentFrame = 0;
-    int XP = 1;
     float m_Speed = 100;
     float animSpeed = 50;
     float cooldown = 0.5;
@@ -34,6 +33,7 @@ public:
     Vector2f m_Position;
     Vector2f size;
     vector<Bullet> Bullets;
+    int XP = 20;
 
     // Настраиваем Player в конструкторе
     Player();

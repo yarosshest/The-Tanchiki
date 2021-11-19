@@ -1,11 +1,37 @@
 #include "Engine.h"
-#include <math.h>
 Engine::Engine()
 {
     border.x = 700;
     border.y = 700;
     m_Window.create(VideoMode(border.x, border.y), "The Tanchiki");
    
+    GameIm.loadFromFile("texturePac.png");
+    GameIm.createMaskFromColor(Color(255, 0, 255));
+
+    GameTex.loadFromImage(GameIm);
+
+    GameSpr.setTexture(GameTex);
+    GameSpr.setTextureRect(IntRect(520, 128, 495, 112));
+
+    OverIm.loadFromFile("texturePac.png");
+    OverIm.createMaskFromColor(Color(255, 0, 255));
+
+    OverTex.loadFromImage(OverIm);
+
+    OverSpr.setTexture(OverTex);
+    OverSpr.setTextureRect(IntRect(520, 336, 495, 112));
+
+    GameSpr.setPosition(100, 100);
+    OverSpr.setPosition(100, 212 + 30);
+
+
+    font.loadFromFile("DatcubBold.ttf");
+    Text textN("dfgdgd", font);
+    textN.setCharacterSize(30);
+    textN.setStyle(Text::Bold);
+    textN.setFillColor(Color::Yellow);
+    text = textN;
+
 
     Player m_Player;
 }
@@ -70,15 +96,23 @@ void Engine::start()
 
     while (m_Window.isOpen())
     {
-        // ѕерезапускаем таймер и записываем отмеренное врем€ в dt
-        Time dt = clock.restart();
+        if (!GameOver)
+        {
+            // ѕерезапускаем таймер и записываем отмеренное врем€ в dt
+            Time dt = clock.restart();
 
-        float dtAsSeconds = dt.asSeconds();
+            float dtAsSeconds = dt.asSeconds();
 
-        update(dtAsSeconds);
-        input();
-        collision();
-        draw();
+            update(dtAsSeconds);
+            input();
+            collision();
+            draw();
+        }
+        else
+        {
+            input();
+            draw();
+        }
     }
 }
 
@@ -86,9 +120,8 @@ void Engine::update(float dtAsSeconds)
 {
     m_Player.update(dtAsSeconds);
 
-
     for (int i = 0; i < Enemys.size(); i++)
-        Enemys[i].update(dtAsSeconds);
+        Enemys[i].update(dtAsSeconds,m_Player.m_Position, m_Player.size);
 
     EnemyTimer += dtAsSeconds;
     if (EnemyTimer >= spawnEnemyCooldown)
@@ -99,7 +132,7 @@ void Engine::update(float dtAsSeconds)
 
     for (int i = 0; i < Explosions.size(); i++)
         Explosions[i].update(dtAsSeconds);
-
+    if (m_Player.XP <= 0) GameOver = true;
 }
 
 void Engine::draw()
@@ -115,21 +148,18 @@ void Engine::draw()
     for (int i = 0; i < Explosions.size(); i++)
         Explosions[i].draw(&m_Window);
 
+    ostringstream playerHealthString, gameScoreString;    // объ€вили переменную здоровь€ и времени
+    playerHealthString << m_Player.XP;
+    gameScoreString << score;
+    text.setString("Health: " + playerHealthString.str() + "\nScore: " + gameScoreString.str());//задаем строку тексту и вызываем сформированную выше строку методом .str()
+    text.setPosition(150, 20);//задаем позицию текста, отступа€ от центра камеры
+    m_Window.draw(text);//рисую этот текст
 
-    Image testImage;
-    testImage.loadFromFile("texturePac.png");
-    testImage.createMaskFromColor(Color(255, 0, 255));
-
-    Texture testTexture;
-    testTexture.loadFromImage(testImage);
-
-    Sprite testSprite;
-    testSprite.setTexture(testTexture);
-    testSprite.setTextureRect(IntRect(512, 0, 64, 64));
-
-    testSprite.setPosition(100,100);
-    m_Window.draw(testSprite);
-
+    if (GameOver)
+    {
+        m_Window.draw(GameSpr);
+        m_Window.draw(OverSpr);
+    }
 
     m_Window.display();
 }
@@ -159,17 +189,58 @@ void Engine::collision()
         else if (bul.Position.x < 0) flag = true;
         else if (bul.Position.y < 0) flag = true;
 
-        for (int i = 0; i < Enemys.size(); i++)
-            if (isCollision(Enemys[i].Position, Enemys[i].size, bul.Position, bul.size))
+        for (int j = 0; j < Enemys.size(); j++)
+            if (isCollision(Enemys[j].Position, Enemys[j].size, bul.Position, bul.size))
             {
                 flag = true;
-                enemysCount++;
-                Explosion ex(Enemys[i].Position);
+                Explosion ex(Enemys[j].Position);
                 Explosions.push_back(ex);
-                Enemys.erase(Enemys.begin() + i);
+                for (int k = 0; k < Enemys.size(); k++)
+                    if (Enemys[j].id == Enemys[k].id)
+                        Enemys.erase(Enemys.begin() + j);
+                score++;
             }
 
         if (flag)m_Player.Bullets.erase(m_Player.Bullets.begin() + i);
+    }
+
+    for (int i = 0; i < Enemys.size(); i++)
+        for (int j = 0; j < Enemys[i].Bullets.size(); j++)
+        {
+            Bullet bul = Enemys[i].Bullets[j];
+            bool flag = false;
+            if (bul.Position.x + bul.size.x > border.x) flag = true;
+            else if (bul.Position.y + bul.size.y > border.y) flag = true;
+            else if (bul.Position.x < 0) flag = true;
+            else if (bul.Position.y < 0) flag = true;
+
+            if (isCollision(m_Player.m_Position, m_Player.size, bul.Position, bul.size))
+            {
+                Explosion ex(m_Player.m_Position);
+                Explosions.push_back(ex);
+                m_Player.XP -= bul.damage;
+                flag = true;
+            }
+
+            if (flag)Enemys[i].Bullets.erase(Enemys[i].Bullets.begin() + j);
+        }
+
+    for (int i = 0; i < Enemys.size(); i++)
+    {
+
+        for (int k = i; k < Enemys.size(); k++)
+            for (int j = 0; j < Enemys[i].Bullets.size(); j++)
+            {
+                Bullet bul = Enemys[i].Bullets[j];
+                if (isCollision(Enemys[k].Position, Enemys[k].size, bul.Position, bul.size))
+                {
+                    Explosion ex(Enemys[k].Position);
+                    Explosions.push_back(ex);
+                    Enemys[i].Bullets.erase(Enemys[i].Bullets.begin() + j);
+                    Enemys.erase(Enemys.begin() + k);
+                }
+            }
+
     }
 
     for(int i =0; i < Explosions.size();i++)
