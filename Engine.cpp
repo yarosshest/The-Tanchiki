@@ -98,6 +98,15 @@ void Engine::start()
     {
         if (!GameOver)
         {
+            sf::Event event;
+            while (m_Window.pollEvent(event))
+            {
+                if (event.type == sf::Event::Closed)
+                {
+                    // Close window button clicked.
+                    m_Window.close();
+                }
+            }
             // Перезапускаем таймер и записываем отмеренное время в dt
             Time dt = clock.restart();
 
@@ -227,7 +236,6 @@ void Engine::collision()
 
     for (int i = 0; i < Enemys.size(); i++)
     {
-
         for (int k = i; k < Enemys.size(); k++)
             for (int j = 0; j < Enemys[i].Bullets.size(); j++)
             {
