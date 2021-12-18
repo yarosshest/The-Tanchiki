@@ -1,7 +1,11 @@
 #include "Engine.h"
 int main()
 {
-    Engine engine;
-	engine.start();
-	return 0;
+	do
+	{
+		Engine engine;
+		engine.start();
+		if (!engine.GameRestart)
+			return 0;
+	} while (true);
 }

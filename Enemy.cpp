@@ -94,13 +94,32 @@ void Enemy::turn(Vector2f posP, Vector2f sizeP)
         }
 }
 
+bool isCollisionMove(Vector2f pos1, Vector2f size1, Vector2f pos2, Vector2f size2)
+{
 
+    if ((pos1.y > (pos2.y + size2.y)) || ((pos1.y + size1.y) < pos2.y) || ((pos1.x + size1.x) < pos2.x) || (pos1.x > (pos2.x + size2.x)))
+        return false;
+    else
+        return true;
+}
 
-void Enemy::update(float elapsedTime , Vector2f posP, Vector2f sizeP)
+void Enemy::update(float elapsedTime , Vector2f posP, Vector2f sizeP, vector<Vector2f> posBord, vector<Vector2f> posSize)
 {
     Move();
-    Position.x += Speed * vectorMove.x * elapsedTime;
-    Position.y += Speed * vectorMove.y * elapsedTime;
+
+    Vector2f predPos;
+    bool move = true;
+    predPos.x = Position.x + m_Speed * vectorMove.x * elapsedTime;
+    predPos.y = Position.y + m_Speed * vectorMove.y * elapsedTime;
+    for (int i = 0; i < posBord.size(); i++)
+        if (posBord[i] != Position)
+        {
+            if (isCollisionMove(predPos, size, posBord[i], posSize[i]))
+                move = false;
+        }
+
+    if (move)
+        Position = predPos;
 
     EnemySprite.setPosition(Position);
     CurrentFrame += elapsedTime * animSpeed;

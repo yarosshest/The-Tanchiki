@@ -86,6 +86,8 @@ void Engine::input()
         m_Player.moveDown();
     if (Keyboard::isKeyPressed(Keyboard::Space))
         m_Player.Fire();
+    if (Keyboard::isKeyPressed(Keyboard::Enter))
+        GameRestart = true;
 }
 
 
@@ -94,7 +96,7 @@ void Engine::start()
     // Расчет времени
     Clock clock;
 
-    while (m_Window.isOpen())
+    while (m_Window.isOpen() && !GameRestart)
     {
         if (!GameOver)
         {
@@ -127,10 +129,25 @@ void Engine::start()
 
 void Engine::update(float dtAsSeconds)
 {
-    m_Player.update(dtAsSeconds);
+
+
+    vector<Vector2f> posBord;
+    vector<Vector2f> posSize;
 
     for (int i = 0; i < Enemys.size(); i++)
-        Enemys[i].update(dtAsSeconds,m_Player.m_Position, m_Player.size);
+    {
+        posBord.push_back(Enemys[i].Position);
+        posSize.push_back(Enemys[i].size);
+    }
+
+    m_Player.update(dtAsSeconds, posBord, posSize);
+
+    posBord.push_back(m_Player.m_Position);
+    posSize.push_back(m_Player.size);
+
+
+    for (int i = 0; i < Enemys.size(); i++)
+        Enemys[i].update(dtAsSeconds,m_Player.m_Position, m_Player.size, posBord, posSize);
 
     EnemyTimer += dtAsSeconds;
     if (EnemyTimer >= spawnEnemyCooldown)
@@ -168,6 +185,9 @@ void Engine::draw()
     {
         m_Window.draw(GameSpr);
         m_Window.draw(OverSpr);
+        text.setString("Enter to restart");//задаем строку тексту и вызываем сформированную выше строку методом .str()
+        text.setPosition(200, 600);//задаем позицию текста, отступая от центра камеры
+        m_Window.draw(text);//рисую этот текст
     }
 
     m_Window.display();
@@ -188,6 +208,7 @@ void Engine::collision()
     if (m_Player.m_Position.y + m_Player.size.y > border.y) m_Player.m_Position.y = border.y - m_Player.size.y;
     if (m_Player.m_Position.x < 0) m_Player.m_Position.x = 0;
     if (m_Player.m_Position.y < 0) m_Player.m_Position.y = 0;
+
 
     for (int i = 0; i < m_Player.Bullets.size(); i++)
     {

@@ -38,7 +38,7 @@ private:
     int ExplCount = 0;
 
     float EnemyTimer = 0;
-    int spawnEnemyCooldown = 0.5;
+    float spawnEnemyCooldown = 0.5;
     int enemysCount = 0;
     int enemysMax = 5;
     int score = 0;
@@ -54,5 +54,6 @@ private:
 
 public:
     Engine();
+    bool GameRestart = false;
     void start();
 };

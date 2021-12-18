@@ -51,6 +51,6 @@ public:
     void draw(RenderWindow* win);
 
     // Эта функция будет вызываться на каждый кадр
-    void update(float elapsedTime);
+    void update(float elapsedTime, vector<Vector2f> posBord, vector<Vector2f> posSize);
 
 };

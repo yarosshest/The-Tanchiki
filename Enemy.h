@@ -20,7 +20,7 @@ private:
 
     float CurrentFrame = 0;
     int XP = 1;
-    float Speed = 20;
+    float m_Speed = 15;
     float animSpeed = 10;
     float cooldown = 2;
     float cooldown_timer = cooldown;
@@ -39,7 +39,7 @@ public:
 
     void turn(Vector2f posP, Vector2f sizeP);
 
-    void update(float elapsedTime, Vector2f posP, Vector2f sizeP);
+    void update(float elapsedTime, Vector2f posP, Vector2f sizeP, vector<Vector2f> posBord, vector<Vector2f> posSize);
 
     void Fire(Vector2f posP, Vector2f sizeP);
 };

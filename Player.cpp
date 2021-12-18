@@ -96,12 +96,30 @@ void Player::draw(RenderWindow* win)
 }
 
 
+bool isCollisionPlayer(Vector2f pos1, Vector2f size1, Vector2f pos2, Vector2f size2)
+{
+
+    if ((pos1.y > (pos2.y + size2.y)) || ((pos1.y + size1.y) < pos2.y) || ((pos1.x + size1.x) < pos2.x) || (pos1.x > (pos2.x + size2.x)))
+        return false;
+    else
+        return true;
+}
+
 // Двигаем на основании пользовательского ввода в этом кадре,
 // прошедшего времени и скорости
-void Player::update(float elapsedTime)
+void Player::update(float elapsedTime, vector<Vector2f> posBord, vector<Vector2f> posSize)
 {
-    m_Position.x += m_Speed * vectorMove.x * elapsedTime;
-    m_Position.y += m_Speed * vectorMove.y * elapsedTime;
+
+    Vector2f predPos;
+    bool move = true;
+    predPos.x = m_Position.x + m_Speed * vectorMove.x * elapsedTime;
+    predPos.y = m_Position.y + m_Speed * vectorMove.y * elapsedTime;
+    for (int i = 0; i < posBord.size(); i++)
+        if (isCollisionPlayer(predPos, size, posBord[i], posSize[i]))
+            move = false;
+
+    if (move)
+        m_Position = predPos;
 
     vectorMove.x = 0;
     vectorMove.y = 0;
